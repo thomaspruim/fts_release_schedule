@@ -222,13 +222,15 @@ body {
 }
 
 .cal-cell {
-  min-height: 110px;
+  min-height: 7.5rem;
+  max-height: 7.5rem;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.35rem;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .cal-pad {
@@ -263,35 +265,153 @@ body {
 
 .cal-event {
   --event-color: var(--accent);
+  display: block;
+  width: 100%;
+  font: inherit;
   font-size: 0.65rem;
-  line-height: 1.25;
+  line-height: 1.2;
+  text-align: left;
   padding: 0.2rem 0.3rem;
   border-radius: 4px;
   background: color-mix(in srgb, var(--event-color) 22%, transparent);
+  border: none;
   border-left: 3px solid var(--event-color);
   overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cal-event:hover {
+  background: color-mix(in srgb, var(--event-color) 32%, transparent);
+}
+
+.cal-event:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.cal-event-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  min-width: 0;
 }
 
 .cal-event-service {
-  display: block;
   font-weight: 700;
   color: var(--event-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .cal-event-version {
-  display: block;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cal-event-version::before {
+  content: "·";
+  margin-right: 0.2rem;
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .cal-event-summary {
-  display: block;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  margin-top: 0.1rem;
   color: var(--text-muted);
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.modal-dialog {
+  position: relative;
+  width: min(32rem, 100%);
+  max-height: min(85vh, 40rem);
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem 1.5rem;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  min-width: 2rem;
+}
+
+.modal-header {
+  padding-right: 2rem;
+}
+
+.modal-header .service-badge {
+  margin-bottom: 0.5rem;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.modal-meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.modal-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.modal-description {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+body.modal-open {
+  overflow: hidden;
 }
 
 .filters {
@@ -472,11 +592,8 @@ body {
 
 @media (max-width: 768px) {
   .cal-cell {
-    min-height: 72px;
-  }
-
-  .cal-event-summary {
-    display: none;
+    min-height: 5.5rem;
+    max-height: 5.5rem;
   }
 
   .filters label {

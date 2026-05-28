@@ -97,13 +97,15 @@ function renderCalendar() {
       const events = items
         .map((r) => {
           const color = ensureServiceColor(r.service);
-          return `<article class="cal-event" style="--event-color:${color}" title="${escapeAttr(
-            `${r.service} · ${r.version}\n${r.summary}`
+          return `<button type="button" class="cal-event" style="--event-color:${color}" data-release-id="${escapeAttr(r.id)}" aria-label="${escapeAttr(
+            `${r.service} ${r.version}: ${r.summary}`
           )}">
-            <span class="cal-event-service">${escapeHtml(r.service)}</span>
-            <span class="cal-event-version">${escapeHtml(r.version)}</span>
+            <span class="cal-event-head">
+              <span class="cal-event-service">${escapeHtml(r.service)}</span>
+              <span class="cal-event-version">${escapeHtml(r.version)}</span>
+            </span>
             <span class="cal-event-summary">${escapeHtml(r.summary)}</span>
-          </article>`;
+          </button>`;
         })
         .join("");
 
@@ -213,6 +215,7 @@ function renderAll() {
 function appendReleases(batch) {
   if (!batch.length) return;
   state.releases = sortReleases([...state.releases, ...batch]);
+  indexReleases(batch);
   for (const r of batch) ensureServiceColor(r.service);
   renderAll();
 }
@@ -225,6 +228,37 @@ function escapeHtml(s) {
 
 function escapeAttr(s) {
   return String(s).replace(/"/g, "&quot;").replace(/\n/g, "&#10;");
+}
+
+const releaseById = new Map();
+
+function indexReleases(releases) {
+  for (const r of releases) releaseById.set(r.id, r);
+}
+
+function openReleaseModal(releaseId) {
+  const release = releaseById.get(releaseId);
+  if (!release) return;
+
+  const modal = document.getElementById("release-modal");
+  const badge = document.getElementById("modal-service-badge");
+  const color = ensureServiceColor(release.service);
+
+  badge.textContent = release.service;
+  badge.style.background = color;
+  document.getElementById("modal-title").textContent = release.version;
+  document.getElementById("modal-meta").textContent = `${formatDisplayDate(release.date)} · ${release.status}`;
+  document.getElementById("modal-description").textContent = release.summary;
+
+  modal.hidden = false;
+  document.body.classList.add("modal-open");
+  modal.querySelector(".modal-close")?.focus();
+}
+
+function closeReleaseModal() {
+  const modal = document.getElementById("release-modal");
+  modal.hidden = true;
+  document.body.classList.remove("modal-open");
 }
 
 function setError(message) {
@@ -321,6 +355,7 @@ function init() {
 
   state.loading = true;
   state.releases = [];
+  releaseById.clear();
   serviceColorMap.clear();
   setError(null);
   setMainLoading(true);
@@ -379,6 +414,20 @@ function bindEvents() {
   document.getElementById("cal-today").addEventListener("click", () => {
     state.calendarMonth = startOfMonth(new Date());
     renderCalendar();
+  });
+
+  document.getElementById("calendar-grid").addEventListener("click", (e) => {
+    const eventEl = e.target.closest(".cal-event");
+    if (!eventEl?.dataset.releaseId) return;
+    openReleaseModal(eventEl.dataset.releaseId);
+  });
+
+  const modal = document.getElementById("release-modal");
+  modal.querySelectorAll("[data-modal-close]").forEach((el) => {
+    el.addEventListener("click", closeReleaseModal);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.hidden) closeReleaseModal();
   });
 
   document.getElementById("filter-service").addEventListener("change", (e) => {

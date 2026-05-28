@@ -100,6 +100,28 @@
       <button type="button" id="retry-load" class="btn btn-ghost btn-sm">Reload data</button>
     </footer>
 
+    <div id="release-modal" class="modal" hidden>
+      <div class="modal-backdrop" data-modal-close tabindex="-1" aria-hidden="true"></div>
+      <div
+        class="modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <button type="button" class="modal-close btn btn-ghost" data-modal-close aria-label="Close">×</button>
+        <header class="modal-header">
+          <span id="modal-service-badge" class="service-badge"></span>
+          <h2 id="modal-title" class="modal-title"></h2>
+          <p id="modal-meta" class="modal-meta"></p>
+        </header>
+        <div class="modal-body">
+          <h3 class="modal-label">Description</h3>
+          <p id="modal-description" class="modal-description"></p>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="app.js"></script>
   </body>
 </html>
